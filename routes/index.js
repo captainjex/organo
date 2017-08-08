@@ -23,15 +23,15 @@ router.get('/login', function(req, res, next) {
 router.post('/login', function(req, res, next) {
   session_store = req.session
   var password = crypto.createHmac('sha256', secret)
-                        .update(req.param('password'))
+                        .update(req.body.password)
                         .digest('hex')
-  if (req.param('username') == '' || req.param('password') == '') {
+  if (req.body.username == '' || req.body.password == '') {
     req.flash('info', 'Maaf, ndak boleh ada field yang kosong')
     res.redirect('/login')
   }
   else {
     User.find({
-      username: req.param('username'),
+      username: req.body.username,
       password: password
     }, function(err, user) {
       if (err) throw err
