@@ -11,12 +11,12 @@ header.main-header
                 li.dropdown.user.user-menu
                     a(href="#", data-toggle='dropdown').dropdown-toggle
                         img.user-image(src='/adminlte/dist/img/avatar.png', alt='User Image')
-                        span.hidden-xs Muhammad Arslan
+                        span.hidden-xs #{session_store.username}
                     ul.dropdown-menu
                         li.user-header
                             img.img-circle(src='/adminlte/dist/img/avatar.png', alt='User Image')
                             p
-                                | Muhammad Arslan
+                                | #{session_store.username}
                         li.user-footer
                             div.pull-left
                                 a.btn.btn-default.btn-flat(href='/profil/') Profil

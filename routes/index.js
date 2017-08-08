@@ -1,31 +1,69 @@
 var express = require('express');
+var crypto = require('crypto')
+
+var User = require('../models/user')
+var Auth_middleware = require('../middlewares/auth')
+
 var router = express.Router();
+var secret = 'codepolitan'
+var session_store;
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Belajar Express' });
-});
-
-/* DEMO - render template */
-router.get('/demo/:id/:category', function(req, res, next) {
-  res.render('demo', {
-    message: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    user: {
-      name: 'suyono',
-      email: 'suyono@gmail.com',
-      website: 'suyono.com'
-    },
-    id: req.params.id,
-    category: req.params.category
+router.get('/', Auth_middleware.check_login, function(req, res, next) {
+  session_store = req.session
+  res.render('index', {
+    title: 'Belajar Express dari Codepolitan blog serial',
+    session_store: session_store
   });
 });
 
-/* DEMO2 - render template */
-router.get('/demo2', function(req, res, next) {
-  res.json({
-    message: 'Lorem ipsum sit dolor amet',
-    user: {name:'suyono', email:'suyono@example.com', website: 'http://www.suyono.com'}
-  });
-});
+router.get('/login', function(req, res, next) {
+  res.render('login')
+})
+
+router.post('/login', function(req, res, next) {
+  session_store = req.session
+  var password = crypto.createHmac('sha256', secret)
+                        .update(req.param('password'))
+                        .digest('hex')
+  if (req.param('username') == '' || req.param('password') == '') {
+    req.flash('info', 'Maaf, ndak boleh ada field yang kosong')
+    res.redirect('/login')
+  }
+  else {
+    User.find({
+      username: req.param('username'),
+      password: password
+    }, function(err, user) {
+      if (err) throw err
+
+      if (user.length > 0) {
+        session_store.username = user[0].username
+        session_store.email = user[0].email
+        session_store.admin = user[0].admin
+        session_store.logged_in = true
+
+        res.redirect('/')
+      } else {
+        req.flash('info', 'Kayaknya akun Anda salah')
+        res.redirect('/login')
+      }
+    })
+  }
+})
+
+router.get('/logout', function(req, res) {
+  req.session.destroy(function (err) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.redirect('/login')
+    }
+  })
+})
+
+router.get('/secret', Auth_middleware.check_login, Auth_middleware.is_admin, function(req, res, next) {
+  session_store = req.session
+  res.render('secret', { session_store: session_store })
+})
 
 module.exports = router;
