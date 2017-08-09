@@ -12,6 +12,8 @@
     "express": "~4.15.2",
     "express-flash": "0.0.2",
     "express-session": "^1.15.5",
+    "express-validator": "^3.2.1",
+    "method-override": "^2.3.9",
     "mongoose": "^4.11.6",
     "morgan": "~1.8.1",
     "pug": "~2.0.0-beta11",

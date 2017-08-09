@@ -61,6 +61,7 @@ router.get('/logout', function(req, res) {
   })
 })
 
+// hanya admin yang bisa buka halaman ini
 router.get('/secret', Auth_middleware.check_login, Auth_middleware.is_admin, function(req, res, next) {
   session_store = req.session
   res.render('secret', { session_store: session_store })
